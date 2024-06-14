@@ -1,11 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:app_dm/models/aluno.dart';
+import 'package:app_dm/models/usuario.dart';
 import 'package:image_picker/image_picker.dart';
 
 class CrieSuaContaPage extends StatefulWidget {
-  final Function(Aluno) onSave;
+  final Function(Usuario) onSave;
 
   CrieSuaContaPage({required this.onSave});
 
@@ -16,7 +16,7 @@ class CrieSuaContaPage extends StatefulWidget {
 class _CrieSuaContaPageState extends State<CrieSuaContaPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _nomeController = TextEditingController();
-  final TextEditingController _matriculaController = TextEditingController();
+  final TextEditingController _cpfController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _senhaController = TextEditingController();
   File? _avatar;
@@ -36,13 +36,13 @@ class _CrieSuaContaPageState extends State<CrieSuaContaPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Crie sua Conta',
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: Colors.deepPurple,
-        centerTitle: true,
-      ),
+          title: Text(
+            'Crie sua conta',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.deepPurple,
+          centerTitle: true,
+          iconTheme: IconThemeData(color: Colors.white)),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -89,15 +89,15 @@ class _CrieSuaContaPageState extends State<CrieSuaContaPage> {
                 ),
                 SizedBox(height: 16.0),
                 TextFormField(
-                  controller: _matriculaController,
+                  controller: _cpfController,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
-                    labelText: 'Matrícula',
-                    hintText: 'Digite sua matrícula',
+                    labelText: 'CPF',
+                    hintText: 'Digite seu cpf',
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Digite sua matrícula!';
+                      return 'Digite seu cpf!';
                     }
                     return null;
                   },
@@ -138,9 +138,9 @@ class _CrieSuaContaPageState extends State<CrieSuaContaPage> {
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
                       widget.onSave(
-                        Aluno(
+                        Usuario(
                           nome: _nomeController.text,
-                          matricula: int.parse(_matriculaController.text),
+                          cpf: int.parse(_cpfController.text),
                           email: _emailController.text,
                           senha: _senhaController.text,
                           avatar: _avatar,

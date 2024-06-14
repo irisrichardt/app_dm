@@ -1,15 +1,15 @@
 import 'dart:io';
 
-class Aluno {
+class Usuario {
   final String nome;
-  final int matricula;
+  final int cpf;
   final String email;
   final String senha;
   final File? avatar;
 
-  Aluno({
+  Usuario({
     required this.nome,
-    required this.matricula,
+    required this.cpf,
     required this.email,
     required this.senha,
     this.avatar,

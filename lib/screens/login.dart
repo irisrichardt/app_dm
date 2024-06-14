@@ -1,11 +1,28 @@
-import 'package:app_dm/models/aluno.dart';
+import 'package:app_dm/models/usuario.dart';
 import 'package:app_dm/screens/crie_sua_conta.dart';
 import 'package:app_dm/screens/home.dart';
 import 'package:flutter/material.dart';
 
-class LoginForm extends StatelessWidget {
-  final _formKey =
-      GlobalKey<FormState>(); // Defina a chave global para o formulário
+class LoginForm extends StatefulWidget {
+  @override
+  _LoginFormState createState() => _LoginFormState();
+}
+
+class _LoginFormState extends State<LoginForm> {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  String extractUsername(String email) {
+    return email.split('@')[0];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,8 +39,7 @@ class LoginForm extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Form(
-            // Envolve os campos de texto com um Form e atribui a chave global
-            key: _formKey, // Atribui a chave global ao Form
+            key: _formKey,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -44,6 +60,7 @@ class LoginForm extends StatelessWidget {
                 ),
                 SizedBox(height: 16.0),
                 TextFormField(
+                  controller: _emailController,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: 'Email',
@@ -58,6 +75,7 @@ class LoginForm extends StatelessWidget {
                 ),
                 SizedBox(height: 16.0),
                 TextFormField(
+                  controller: _passwordController,
                   obscureText: true,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
@@ -82,13 +100,16 @@ class LoginForm extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
+                      String userName = extractUsername(_emailController.text);
                       Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (valor) => const Home(),
-                          ));
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Home(
+                            userName: userName, // Passa o nome para a tela Home
+                          ),
+                        ),
+                      );
                     }
-                    // Implementar a lógica de autenticação aqui
                   },
                   style: ButtonStyle(
                     backgroundColor:
@@ -109,11 +130,9 @@ class LoginForm extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder: (context) => CrieSuaContaPage(
-                              onSave: (Aluno aluno) {
-                                // Implemente aqui o que você deseja fazer com os detalhes do aluno
-                                // Por exemplo, enviar os detalhes do aluno para o servidor de autenticação
+                              onSave: (Usuario usuario) {
                                 print(
-                                    'Detalhes do aluno salvos: ${aluno.nome}, ${aluno.matricula}, ${aluno.email}, ${aluno.senha}');
+                                    'Detalhes do usuario salvos: ${usuario.nome}, ${usuario.cpf}, ${usuario.email}, ${usuario.senha}');
                               },
                             ),
                           ),
