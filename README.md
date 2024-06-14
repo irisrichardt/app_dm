@@ -1,16 +1,14 @@
-# app_dm
+# App_DM
 
-A new Flutter project.
+Este projeto é um aplicativo Flutter para gerenciar as atividades de um time de T.I.
 
-## Getting Started
+## Sobre o Projeto
 
-This project is a starting point for a Flutter application.
+O App_DM foi desenvolvido para facilitar o gerenciamento de atividades das atividades e equipes. Ele permite aos usuários visualizarem suas tarefas, marcar o progresso, e interagir com outras funcionalidades relacionadas à administração das atividades.
 
-A few resources to get you started if this is your first Flutter project:
+## Funcionalidades
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- **Visualização de Atividades**: Lista de atividades cadastradas.
+- **Status das Atividades**: Acompanhamento do status das atividades (em andamento, concluídas, etc.).
+- **Gerenciamento de Equipes**: Recursos para gerenciar equipes.
+- **Personalização de Conta**: Opções para personalizar a conta do usuário, incluindo foto de perfil e informações pessoais.
