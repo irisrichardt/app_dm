@@ -1,14 +1,14 @@
 import 'package:app_dm/models/usuario.dart';
-import 'package:app_dm/screens/crie_sua_conta.dart';
-import 'package:app_dm/screens/home.dart';
+import 'package:app_dm/screens/CrieSuaContaScreen.dart';
+import 'package:app_dm/screens/HomeScreen.dart';
 import 'package:flutter/material.dart';
 
-class LoginForm extends StatefulWidget {
+class LoginFormScreen extends StatefulWidget {
   @override
   _LoginFormState createState() => _LoginFormState();
 }
 
-class _LoginFormState extends State<LoginForm> {
+class _LoginFormState extends State<LoginFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -104,7 +104,7 @@ class _LoginFormState extends State<LoginForm> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => Home(
+                          builder: (context) => HomeScreen(
                             userName: userName, // Passa o nome para a tela Home
                           ),
                         ),
@@ -129,7 +129,7 @@ class _LoginFormState extends State<LoginForm> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => CrieSuaContaPage(
+                            builder: (context) => CrieSuaContaScreen(
                               onSave: (Usuario usuario) {
                                 print(
                                     'Detalhes do usuario salvos: ${usuario.nome}, ${usuario.cpf}, ${usuario.email}, ${usuario.senha}');

@@ -4,16 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:app_dm/models/usuario.dart';
 import 'package:image_picker/image_picker.dart';
 
-class CrieSuaContaPage extends StatefulWidget {
+class CrieSuaContaScreen extends StatefulWidget {
   final Function(Usuario) onSave;
 
-  CrieSuaContaPage({required this.onSave});
+  CrieSuaContaScreen({required this.onSave});
 
   @override
-  _CrieSuaContaPageState createState() => _CrieSuaContaPageState();
+  _CrieSuaContaScreenState createState() => _CrieSuaContaScreenState();
 }
 
-class _CrieSuaContaPageState extends State<CrieSuaContaPage> {
+class _CrieSuaContaScreenState extends State<CrieSuaContaScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _nomeController = TextEditingController();
   final TextEditingController _cpfController = TextEditingController();

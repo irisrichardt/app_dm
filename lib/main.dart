@@ -1,4 +1,4 @@
-import 'package:app_dm/screens/login.dart';
+import 'package:app_dm/screens/LoginFormScreen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: LoginForm(),
+      home: LoginFormScreen(),
       debugShowCheckedModeBanner: false,
     );
   }

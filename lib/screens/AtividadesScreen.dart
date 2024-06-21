@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'CriarAtividadeScreen.dart';
 
 class AtividadesScreen extends StatelessWidget {
   final String categoryName;
@@ -9,7 +10,13 @@ class AtividadesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(categoryName),
+        title: Text(
+          categoryName,
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.deepPurple,
+        centerTitle: true,
+        iconTheme: IconThemeData(color: Colors.white), 
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -31,8 +38,16 @@ class AtividadesScreen extends StatelessWidget {
             padding: const EdgeInsets.all(8.0),
             child: ElevatedButton(
               onPressed: () {
-                print('Novo Atividade clicado');
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => CriarAtividadeScreen()),
+                );
               },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.deepPurple,
+                foregroundColor: Colors.white,
+              ),
               child: Text('Nova Atividade'),
             ),
           ),

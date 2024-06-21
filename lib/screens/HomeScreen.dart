@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-
 import 'AtividadesScreen.dart';
+import 'GerenciarEquipesScreen.dart';
 
-class Home extends StatefulWidget {
+class HomeScreen extends StatefulWidget {
   final String userName;
 
-  const Home({required this.userName, Key? key}) : super(key: key);
+  const HomeScreen({required this.userName, Key? key}) : super(key: key);
 
   @override
-  State<Home> createState() => _HomeState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeScreenState extends State<HomeScreen> {
   int _selectedButton = 0;
   String _selectedText = 'Minhas Atividades';
 
@@ -57,19 +57,22 @@ class _HomeState extends State<Home> {
         child: Column(
           children: [
             Text(
-              'Bem-vindo, ${widget.userName}!',
+              'Bem-vinda, ${widget.userName}!',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 20),
             Container(
-              height: 220,
+              height: 150,
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
-                    _buildOptionCard('Atividades Frontend'),
-                    _buildOptionCard('Atividades Backend'),
-                    _buildOptionCard('Gerenciar equipes'),
+                    _buildOptionCard('Atividades Frontend',
+                        AtividadesScreen(categoryName: 'Atividades Frontend')),
+                    _buildOptionCard('Atividades Backend',
+                        AtividadesScreen(categoryName: 'Atividades Backend')),
+                    _buildOptionCard(
+                        'Gerenciar Equipes', GerenciarEquipesScreen()),
                   ],
                 ),
               ),
@@ -116,13 +119,13 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget _buildOptionCard(String title) {
+  Widget _buildOptionCard(String title, Widget destination) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => AtividadesScreen(categoryName: title),
+            builder: (context) => destination,
           ),
         );
       },
@@ -184,6 +187,6 @@ class _HomeState extends State<Home> {
 
 void main() {
   runApp(MaterialApp(
-    home: Home(userName: 'Usuário'),
+    home: HomeScreen(userName: 'Usuário'),
   ));
 }
