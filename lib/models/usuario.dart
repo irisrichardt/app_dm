@@ -1,17 +1,28 @@
-import 'dart:io';
-
 class Usuario {
-  final String nome;
-  final int cpf;
-  final String email;
-  final String senha;
-  final File? avatar;
+  String username; // Renomeado de nome para username
+  String password; // Campo adicionado
+  String name; // Renomeado de nome para name
+  DateTime birthDate; // Campo adicionado e do tipo DateTime
+  String gender; // Campo adicionado
+  String email;
 
   Usuario({
-    required this.nome,
-    required this.cpf,
+    required this.username,
+    required this.password,
+    required this.name,
+    required this.birthDate,
+    required this.gender,
     required this.email,
-    required this.senha,
-    this.avatar,
   });
+
+  factory Usuario.fromJson(Map<String, dynamic> json) {
+    return Usuario(
+      username: json['username'] ?? '',
+      password: json['password'] ?? '',
+      name: json['name'] ?? '',
+      birthDate: DateTime.tryParse(json['birthDate'] ?? '') ?? DateTime.now(),
+      gender: json['gender'] ?? '',
+      email: json['email'] ?? '',
+    );
+  }
 }

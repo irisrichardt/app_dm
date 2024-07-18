@@ -1,19 +1,61 @@
+import 'package:app_dm/models/usuario.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'AtividadesScreen.dart';
 import 'GerenciarEquipesScreen.dart';
+import 'LoginFormScreen.dart';
 
 class HomeScreen extends StatefulWidget {
-  final String userName;
+  final String token;
 
-  const HomeScreen({required this.userName, Key? key}) : super(key: key);
+  const HomeScreen({required this.token, Key? key}) : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _selectedButton = 0;
-  String _selectedText = 'Minhas Atividades';
+  List<Usuario> _usuarios = []; // Lista de usuários
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserData();
+  }
+
+  Future<void> _fetchUserData() async {
+    try {
+      var url = Uri.parse('http://10.0.2.2:3001/users');
+      var response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer ${widget.token}',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var userData = jsonDecode(response.body);
+        if (userData is List) {
+          setState(() {
+            _usuarios = userData.map((json) => Usuario.fromJson(json)).toList();
+            _isLoading = false;
+          });
+        } else {
+          print('Dados dos usuários não são uma lista');
+          setState(() => _isLoading = false);
+        }
+      } else {
+        print('Erro ao buscar dados dos usuários: ${response.statusCode}');
+        setState(() => _isLoading = false);
+      }
+    } catch (e) {
+      print('Erro ao buscar dados dos usuários: $e');
+      setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,159 +76,98 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         backgroundColor: Colors.deepPurple,
         iconTheme: IconThemeData(color: Colors.white),
-        leading: IconButton(
-          icon: Icon(Icons.menu),
-          onPressed: () {
-            // Ação ao clicar no ícone de menu
-            print('Menu icon clicked');
+        leading: Builder(
+          builder: (BuildContext context) {
+            return IconButton(
+              icon: Icon(Icons.menu),
+              onPressed: () {
+                Scaffold.of(context).openDrawer(); // Abre o menu lateral
+              },
+            );
           },
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: CircleAvatar(
-              backgroundImage: NetworkImage('https://via.placeholder.com/300'),
-              radius: 18,
-            ),
-          ),
-        ],
       ),
-      body: Container(
-        color: Colors.white,
-        padding: EdgeInsets.all(10),
-        child: Column(
-          children: [
-            Text(
-              'Bem-vinda, ${widget.userName}!',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 20),
-            Container(
-              height: 150,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    _buildOptionCard('Atividades Frontend',
-                        AtividadesScreen(categoryName: 'Atividades Frontend')),
-                    _buildOptionCard('Atividades Backend',
-                        AtividadesScreen(categoryName: 'Atividades Backend')),
-                    _buildOptionCard(
-                        'Gerenciar Equipes', GerenciarEquipesScreen()),
-                  ],
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.deepPurple,
+              ),
+              child: Text(
+                'Menu Lateral',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
                 ),
               ),
             ),
-            SizedBox(height: 20),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  _buildButton(0, 'Minhas Atividades'),
-                  SizedBox(width: 10),
-                  _buildButton(1, 'Em andamento'),
-                  SizedBox(width: 10),
-                  _buildButton(2, 'Em revisão'),
-                  SizedBox(width: 10),
-                  _buildButton(3, 'Concluídas'),
-                ],
-              ),
+            ListTile(
+              title: Text('Home'),
+              onTap: () {
+                Navigator.pop(context); // Fecha o menu lateral
+                // Navegue para a tela de Home
+                // Aqui você pode adicionar código se quiser navegar de volta para a tela de Home
+              },
             ),
-            SizedBox(height: 20),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                _selectedText,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
+            ListTile(
+              title: Text('Atividades'),
+              onTap: () {
+                Navigator.pop(context); // Fecha o menu lateral
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => AtividadesScreen(
+                          categoryName:
+                              'Atividades Frontend')), // Navega para a tela de Atividades
+                );
+              },
             ),
-            SizedBox(height: 10),
-            Expanded(
-              child: ListView(
-                children: [
-                  _buildActivityItem('Frontend Task 1'),
-                  _buildActivityItem('Frontend Task 2'),
-                  _buildActivityItem('Backend Task 1'),
-                  _buildActivityItem('Backend Task 2'),
-                  _buildActivityItem('Manage Team Task 1'),
-                ],
-              ),
+            ListTile(
+              title: Text('Gerenciar Equipes'),
+              onTap: () {
+                Navigator.pop(context); // Fecha o menu lateral
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          GerenciarEquipesScreen()), // Navega para a tela de Gerenciar Equipes
+                );
+              },
+            ),
+            ListTile(
+              title: Text('Sair'),
+              onTap: () {
+                Navigator.pop(context); // Fecha o menu lateral
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          LoginFormScreen()), // Navega para a tela de Login
+                );
+              },
             ),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildOptionCard(String title, Widget destination) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => destination,
-          ),
-        );
-      },
-      child: Container(
-        width: 200,
-        height: 200,
-        margin: EdgeInsets.symmetric(horizontal: 10),
-        decoration: BoxDecoration(
-          color: Colors.deepPurple,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Center(
-          child: Text(
-            title,
-            style: TextStyle(color: Colors.white, fontSize: 18),
-            textAlign: TextAlign.center,
-          ),
-        ),
+      body: Center(
+        child: _isLoading
+            ? CircularProgressIndicator() // Indicador de carregamento enquanto busca os dados
+            : _usuarios.isNotEmpty
+                ? ListView.builder(
+                    itemCount: _usuarios.length,
+                    itemBuilder: (context, index) {
+                      final usuario = _usuarios[index];
+                      return ListTile(
+                        title: Text(usuario.name),
+                        subtitle: Text(usuario.email),
+                      );
+                    },
+                  )
+                : Text(
+                    'Nenhum usuário encontrado'), // Mensagem para quando a lista estiver vazia
       ),
     );
   }
-
-  ElevatedButton _buildButton(int index, String text) {
-    return ElevatedButton(
-      onPressed: () {
-        setState(() {
-          _selectedButton = index;
-          _selectedText = text;
-        });
-        print('$text clicado');
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: _selectedButton == index ? Colors.white : Colors.grey,
-        side: _selectedButton == index
-            ? BorderSide(color: Colors.grey, width: 2)
-            : BorderSide.none,
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: _selectedButton == index ? Colors.grey : Colors.white,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActivityItem(String activity) {
-    return Card(
-      margin: EdgeInsets.symmetric(vertical: 5),
-      child: ListTile(
-        title: Text(activity),
-        onTap: () {
-          print('$activity foi clicado');
-        },
-      ),
-    );
-  }
-}
-
-void main() {
-  runApp(MaterialApp(
-    home: HomeScreen(userName: 'Usuário'),
-  ));
 }
