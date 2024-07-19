@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'LoginFormScreen.dart';
-import 'CrieSuaContaScreen.dart';
-import 'package:app_dm/models/usuario.dart';
+import 'login/login_screen.dart';
+import 'login/register_screen.dart';
+import 'package:app_dm/models/user.dart';
 import 'package:app_dm/utils/constants.dart';
 
 void _handleSaveUsuario(Usuario usuario) {
@@ -81,7 +81,7 @@ class WelcomeScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => CrieSuaContaScreen(
+                      builder: (context) => RegisterScreen(
                         onSave: _handleSaveUsuario,
                       ),
                     ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+const String apiBaseUrl = 'http://10.0.2.2:3001';
+
 const Color customBlue = Color.fromARGB(255, 80, 114, 236);
 
 InputDecoration _inputDecoration(

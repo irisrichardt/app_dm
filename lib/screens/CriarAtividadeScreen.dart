@@ -1,4 +1,4 @@
-import 'package:app_dm/models/atividade.dart';
+import 'package:app_dm/models/task.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';

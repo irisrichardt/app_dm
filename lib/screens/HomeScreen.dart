@@ -1,10 +1,10 @@
-import 'package:app_dm/models/usuario.dart';
+import 'package:app_dm/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'AtividadesScreen.dart';
 import 'GerenciarEquipesScreen.dart';
-import 'LoginFormScreen.dart';
+import 'login/login_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final String token;

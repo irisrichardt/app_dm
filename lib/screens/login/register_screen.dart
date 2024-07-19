@@ -1,19 +1,18 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:app_dm/models/usuario.dart';
+import 'package:app_dm/models/user.dart';
 import 'package:app_dm/utils/constants.dart';
+import 'package:app_dm/services/user_service.dart';
 
-class CrieSuaContaScreen extends StatefulWidget {
+class RegisterScreen extends StatefulWidget {
   final Function(Usuario) onSave;
 
-  CrieSuaContaScreen({required this.onSave});
+  RegisterScreen({required this.onSave});
 
   @override
-  _CrieSuaContaScreenState createState() => _CrieSuaContaScreenState();
+  _RegisterScreenState createState() => _RegisterScreenState();
 }
 
-class _CrieSuaContaScreenState extends State<CrieSuaContaScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -21,6 +20,7 @@ class _CrieSuaContaScreenState extends State<CrieSuaContaScreen> {
   final TextEditingController _birthDateController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   String _selectedGender = 'male';
+  final UserService _userService = UserService();
 
   void _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -36,10 +36,11 @@ class _CrieSuaContaScreenState extends State<CrieSuaContaScreen> {
     }
   }
 
-  InputDecoration _inputDecoration(
-      {required String labelText,
-      required String hintText,
-      required IconData icon}) {
+  InputDecoration _inputDecoration({
+    required String labelText,
+    required String hintText,
+    required IconData icon,
+  }) {
     return InputDecoration(
       prefixIcon: Icon(icon, color: customBlue),
       filled: true,
@@ -55,55 +56,43 @@ class _CrieSuaContaScreenState extends State<CrieSuaContaScreen> {
     );
   }
 
-  void _createAccount() async {
+  void _createUser() async {
     if (_formKey.currentState!.validate()) {
-      // Construir o payload
-      Map<String, dynamic> data = {
-        "username": _usernameController.text,
-        "password": _passwordController.text,
-        "name": _nameController.text,
-        "birthDate": _birthDateController.text,
-        "gender": _selectedGender,
-        "email": _emailController.text,
+      // Criar o Map com os dados do usuário
+      Map<String, dynamic> userData = {
+        'username': _usernameController.text,
+        'password': _passwordController.text,
+        'name': _nameController.text,
+        'birthDate': _birthDateController.text,
+        'gender': _selectedGender,
+        'email': _emailController.text,
       };
 
-      // Exibir os dados no console antes de enviar
-      print('Dados enviados para o servidor:');
-      print('Username: ${data["username"]}');
-      print('Password: ${data["password"]}');
-      print('Name: ${data["name"]}');
-      print('Birth Date: ${data["birthDate"]}');
-      print('Gender: ${data["gender"]}');
-      print('Email: ${data["email"]}');
-
-      // Enviar a requisição POST
       try {
-        final response = await http.post(
-          Uri.parse('http://10.0.2.2:3001/users'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-          },
-          body: jsonEncode(data),
+        // Passar o Map para o método createUser
+        Usuario newUsuario = await _userService.createUser(userData);
+        print('Conta criada com sucesso!');
+
+        // Exibir SnackBar de sucesso
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Conta criada com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
         );
 
-        if (response.statusCode == 201) {
-          // Conta criada com sucesso
-          print('Conta criada com sucesso!');
-          // Extrair os dados do usuário do corpo da resposta
-          Usuario usuario = Usuario.fromJson(jsonDecode(response.body));
-          // Chamar a função onSave passando o usuário criado
-          widget.onSave(usuario);
-          // Voltar para a tela anterior
-          Navigator.pop(context);
-        } else {
-          // Falha ao criar a conta
-          print('Falha ao criar a conta: ${response.statusCode}');
-          // Mostrar uma mensagem de erro adequada para o usuário
-        }
+        widget.onSave(newUsuario);
+        Navigator.pop(context);
       } catch (e) {
-        // Erro ao conectar com o servidor
         print('Erro ao conectar com o servidor: $e');
-        // Mostrar uma mensagem de erro para o usuário
+
+        // Exibir SnackBar de erro
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao criar conta. Tente novamente!'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
   }
@@ -232,7 +221,7 @@ class _CrieSuaContaScreenState extends State<CrieSuaContaScreen> {
               ),
               SizedBox(height: 16.0),
               ElevatedButton(
-                onPressed: _createAccount,
+                onPressed: _createUser,
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all<Color>(customBlue),
                   shape: MaterialStateProperty.all<RoundedRectangleBorder>(
