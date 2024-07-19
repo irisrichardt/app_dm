@@ -4,7 +4,8 @@ import '../../services/task_service.dart';
 import '../../models/task.dart';
 import 'task_details_screen.dart';
 import 'package:app_dm/utils/constants.dart';
-import 'package:app_dm/repositories/task_repository.dart'; // Importe o repositório
+import 'package:app_dm/repositories/task_repository.dart';
+import 'package:app_dm/screens/task/edit_task_screen.dart';
 
 class AtividadesScreen extends StatefulWidget {
   final String categoryName;
@@ -48,9 +49,16 @@ class _AtividadesScreenState extends State<AtividadesScreen> {
     }
   }
 
-  void _editTask(Task task) {
-    // Implementar lógica para editar a tarefa
-    print('Editar tarefa: ${task.title}');
+  void _editTask(Task task) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditTaskScreen(task: task),
+      ),
+    );
+    if (result == true) {
+      _loadTasks(); // Atualiza a lista de tarefas após a edição
+    }
   }
 
   Future<void> _deleteTask(Task task) async {

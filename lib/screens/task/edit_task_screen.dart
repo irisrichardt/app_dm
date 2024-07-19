@@ -5,26 +5,35 @@ import '../../services/task_service.dart';
 import '../../repositories/task_repository.dart';
 import 'package:app_dm/utils/constants.dart';
 
-enum TaskStatus { TO_DO, IN_PROGRESS, DONE } // Example enum for status
+enum TaskStatus { TO_DO, IN_PROGRESS, DONE }
 
-class CriarAtividadeScreen extends StatefulWidget {
+class EditTaskScreen extends StatefulWidget {
+  final Task task;
+
+  const EditTaskScreen({required this.task});
+
   @override
-  _CriarAtividadeScreenState createState() => _CriarAtividadeScreenState();
+  _EditTaskScreenState createState() => _EditTaskScreenState();
 }
 
-class _CriarAtividadeScreenState extends State<CriarAtividadeScreen> {
+class _EditTaskScreenState extends State<EditTaskScreen> {
   final _formKey = GlobalKey<FormState>();
   late TaskRepository _taskRepository;
 
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
-  TaskStatus? _selectedStatus; // Use enum for status
+  TaskStatus? _selectedStatus;
   DateTime? _selectedDate;
 
   @override
   void initState() {
     super.initState();
     _taskRepository = TaskRepository(taskService: TaskService());
+
+    _titleController.text = widget.task.title;
+    _descriptionController.text = widget.task.description;
+    _selectedStatus = _stringToTaskStatus(widget.task.status);
+    _selectedDate = widget.task.expirationDate;
   }
 
   InputDecoration _inputDecoration({
@@ -52,7 +61,7 @@ class _CriarAtividadeScreenState extends State<CriarAtividadeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Lista de atividades",
+          "Editar Atividade",
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: customBlue,
@@ -120,22 +129,11 @@ class _CriarAtividadeScreenState extends State<CriarAtividadeScreen> {
                 },
               ),
               SizedBox(height: 24.0), // Increase space between fields
-              TextFormField(
-                readOnly: true,
-                decoration: _inputDecoration(
-                  labelText: 'Data de expiração',
-                  hintText: 'Selecione a data de expiração',
-                  icon: Icons.calendar_today,
-                ),
-                controller: TextEditingController(
-                  text: _selectedDate == null
-                      ? ''
-                      : DateFormat('dd/MM/yyyy').format(_selectedDate!),
-                ),
+              GestureDetector(
                 onTap: () async {
                   DateTime? pickedDate = await showDatePicker(
                     context: context,
-                    initialDate: DateTime.now(),
+                    initialDate: _selectedDate ?? DateTime.now(),
                     firstDate: DateTime.now(),
                     lastDate: DateTime(2101),
                   );
@@ -145,12 +143,27 @@ class _CriarAtividadeScreenState extends State<CriarAtividadeScreen> {
                     });
                   }
                 },
-                validator: (value) {
-                  if (_selectedDate == null) {
-                    return 'Por favor, selecione uma data de expiração';
-                  }
-                  return null;
-                },
+                child: AbsorbPointer(
+                  child: TextFormField(
+                    readOnly: true,
+                    decoration: _inputDecoration(
+                      labelText: 'Data de expiração',
+                      hintText: 'Selecione a data de expiração',
+                      icon: Icons.calendar_today,
+                    ),
+                    controller: TextEditingController(
+                      text: _selectedDate == null
+                          ? ''
+                          : DateFormat('dd/MM/yyyy').format(_selectedDate!),
+                    ),
+                    validator: (value) {
+                      if (_selectedDate == null) {
+                        return 'Por favor, selecione uma data de expiração';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
               ),
               SizedBox(height: 24.0), // Increase space between fields
               ElevatedButton(
@@ -158,7 +171,7 @@ class _CriarAtividadeScreenState extends State<CriarAtividadeScreen> {
                   if (_formKey.currentState!.validate() &&
                       _selectedDate != null &&
                       _selectedStatus != null) {
-                    _createTask(); // Call method to create task
+                    _updateTask(); // Call method to update task
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -174,7 +187,7 @@ class _CriarAtividadeScreenState extends State<CriarAtividadeScreen> {
                   ),
                 ),
                 child: Text(
-                  'Criar atividade',
+                  'Atualizar atividade',
                   style: TextStyle(color: Colors.white, fontSize: 18),
                 ),
               ),
@@ -185,37 +198,34 @@ class _CriarAtividadeScreenState extends State<CriarAtividadeScreen> {
     );
   }
 
-  void _createTask() async {
+  void _updateTask() async {
     if (_formKey.currentState!.validate()) {
-      Task newTask = Task(
-        id: '', // ID será gerado pelo servidor
+      Task updatedTask = Task(
+        id: widget.task.id,
         title: _titleController.text,
         description: _descriptionController.text,
-        status: _selectedStatus
-            .toString()
-            .split('.')
-            .last, // Convert enum to string
+        status: _selectedStatus.toString().split('.').last,
         expirationDate: _selectedDate!,
       );
 
       try {
-        await _taskRepository.createTask(newTask);
-        print('Atividade criada com sucesso!');
+        await _taskRepository.updateTask(updatedTask);
+        print('Atividade atualizada com sucesso!');
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Atividade criada com sucesso!'),
+            content: Text('Atividade atualizada com sucesso!'),
             backgroundColor: Colors.green,
           ),
         );
 
-        Navigator.pop(context, true); // Retornar true para indicar sucesso
+        Navigator.pop(context, true);
       } catch (e) {
         print('Erro ao conectar com o servidor: $e');
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao criar atividade. Tente novamente!'),
+            content: Text('Erro ao atualizar atividade. Tente novamente!'),
             backgroundColor: Colors.red,
           ),
         );
@@ -223,7 +233,6 @@ class _CriarAtividadeScreenState extends State<CriarAtividadeScreen> {
     }
   }
 
-  // Method to translate status enum to user-friendly text
   String _translateStatus(TaskStatus status) {
     switch (status) {
       case TaskStatus.TO_DO:
@@ -234,6 +243,19 @@ class _CriarAtividadeScreenState extends State<CriarAtividadeScreen> {
         return 'Concluído';
       default:
         return '';
+    }
+  }
+
+  TaskStatus _stringToTaskStatus(String status) {
+    switch (status) {
+      case 'Pendente':
+        return TaskStatus.TO_DO;
+      case 'Em Andamento':
+        return TaskStatus.IN_PROGRESS;
+      case 'Concluído':
+        return TaskStatus.DONE;
+      default:
+        return TaskStatus.TO_DO;
     }
   }
 }

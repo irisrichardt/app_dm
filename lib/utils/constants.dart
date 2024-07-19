@@ -4,7 +4,7 @@ const String apiBaseUrl = 'http://10.0.2.2:3001';
 
 const Color customBlue = Color.fromARGB(255, 80, 114, 236);
 
-InputDecoration _inputDecoration(
+InputDecoration inputDecoration(
     {required String labelText,
     required String hintText,
     required IconData icon}) {

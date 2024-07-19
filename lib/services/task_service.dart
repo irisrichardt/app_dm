@@ -72,6 +72,35 @@ class TaskService {
     }
   }
 
+  Future<void> updateTask(Task task) async {
+    try {
+      final token = await _authService.getToken();
+      if (token == null) {
+        throw Exception('Token não encontrado');
+      }
+
+      final response = await http.put(
+        Uri.parse('$apiBaseUrl/task/${task.id}'),
+        headers: <String, String>{
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({
+          'title': task.title,
+          'description': task.description,
+          'status': task.status,
+          'expirationDate': task.expirationDate.toIso8601String(),
+        }),
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Failed to update task');
+      }
+    } catch (e) {
+      throw Exception('Erro ao atualizar a tarefa: $e');
+    }
+  }
+
   Future<void> deleteTask(String taskId) async {
     final token = await _authService.getToken();
 

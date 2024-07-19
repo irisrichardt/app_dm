@@ -40,7 +40,7 @@ class TaskDetailsScreen extends StatelessWidget {
                 SizedBox(width: 8.0),
                 Expanded(
                   child: Text(
-                    task.description,
+                    'Descrição: ${task.description}',
                     style: TextStyle(fontSize: 16),
                   ),
                 ),
