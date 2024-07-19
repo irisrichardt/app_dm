@@ -1,4 +1,5 @@
 class Usuario {
+  final String id;
   final String username;
   final String password;
   final String name;
@@ -7,6 +8,7 @@ class Usuario {
   final String email;
 
   Usuario({
+    required this.id,
     required this.username,
     required this.password,
     required this.name,
@@ -17,6 +19,7 @@ class Usuario {
 
   factory Usuario.fromJson(Map<String, dynamic> json) {
     return Usuario(
+      id: json['id'],
       username: json['username'],
       password: json['password'],
       name: json['name'],
@@ -28,12 +31,33 @@ class Usuario {
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'username': username,
       'password': password,
       'name': name,
       'birthDate': birthDate,
       'gender': gender,
       'email': email,
+    };
+  }
+
+  factory Usuario.simpleFromJson(Map<String, dynamic> json) {
+    return Usuario(
+      id: json['id'],
+      username: json['username'],
+      password: '', // Opcional, dependendo de como deseja lidar com isso
+      name: '',
+      birthDate: '',
+      gender: '',
+      email: '',
+    );
+  }
+
+  // Método toJson simplificado
+  Map<String, dynamic> simpleToJson() {
+    return {
+      'id': id,
+      'username': username,
     };
   }
 }

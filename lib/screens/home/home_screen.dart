@@ -1,10 +1,12 @@
-import 'package:app_dm/models/user.dart';
 import 'package:flutter/material.dart';
+import 'package:app_dm/screens/team/team_screen.dart';
 import '../task/task_screen.dart';
-import '../GerenciarEquipesScreen.dart';
 import '../login/login_screen.dart';
 import '../../services/user_service.dart';
-import 'package:app_dm/utils/constants.dart';
+import '../../services/task_service.dart';
+import '../../utils/constants.dart';
+import 'package:app_dm/models/user.dart';
+import 'package:app_dm/models/task.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -15,12 +17,51 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final UserService _userService = UserService();
-  late Future<List<Usuario>> _usuarios;
+  final TaskService _taskService = TaskService();
+
+  late Future<Map<String, dynamic>> _dashboardData;
 
   @override
   void initState() {
     super.initState();
-    _usuarios = _userService.fetchUsers();
+    _dashboardData = _fetchDashboardData();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _refreshData();
+  }
+
+  Future<void> _refreshData() async {
+    setState(() {
+      _dashboardData = _fetchDashboardData();
+    });
+  }
+
+  Future<Map<String, dynamic>> _fetchDashboardData() async {
+    final List<Usuario> usuarios = await _userService.fetchUsers();
+    final List<Task> tasks = await _taskService.fetchTasks();
+
+    final int totalUsers = usuarios.length;
+
+    final Map<String, int> statusCounts = {
+      'IN_PROGRESS': 0,
+      'DONE': 0,
+      'TO_DO': 0,
+    };
+
+    for (var task in tasks) {
+      if (statusCounts.containsKey(task.status)) {
+        statusCounts[task.status] = (statusCounts[task.status] ?? 0) + 1;
+      }
+    }
+
+    return {
+      'totalUsers': totalUsers,
+      'statusCounts': statusCounts,
+      'recentActivities': tasks.take(3).map((task) => '${task.title}').toList(),
+    };
   }
 
   @override
@@ -31,11 +72,11 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Atividades',
+              'Bem-vindo!',
               style: TextStyle(color: Colors.white),
             ),
             Text(
-              'Atividades recentes',
+              'Resumo do seu dia',
               style: TextStyle(color: Colors.white70, fontSize: 14),
             ),
           ],
@@ -47,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
             return IconButton(
               icon: Icon(Icons.menu),
               onPressed: () {
-                Scaffold.of(context).openDrawer(); // Abre o menu lateral
+                Scaffold.of(context).openDrawer();
               },
             );
           },
@@ -62,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: customBlue,
               ),
               child: Text(
-                'Menu Lateral',
+                'WorkFlow',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 24,
@@ -72,76 +113,155 @@ class _HomeScreenState extends State<HomeScreen> {
             ListTile(
               title: Text('Home'),
               onTap: () {
-                Navigator.pop(context); // Fecha o menu lateral
-                // Navegue para a tela de Home
-                // Aqui você pode adicionar código se quiser navegar de volta para a tela de Home
+                Navigator.pop(context);
               },
             ),
             ListTile(
               title: Text('Atividades'),
               onTap: () {
-                Navigator.pop(context); // Fecha o menu lateral
+                Navigator.pop(context);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                       builder: (context) => AtividadesScreen(
-                          categoryName:
-                              'Lista de atividades')), // Navega para a tela de Atividades
-                );
+                          categoryName: 'Lista de atividades')),
+                ).then((_) {
+                  _refreshData();
+                });
               },
             ),
             ListTile(
               title: Text('Gerenciar Equipes'),
               onTap: () {
-                Navigator.pop(context); // Fecha o menu lateral
+                Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          GerenciarEquipesScreen()), // Navega para a tela de Gerenciar Equipes
-                );
+                  MaterialPageRoute(builder: (context) => TeamsScreen()),
+                ).then((_) {
+                  // Quando você retorna para a HomeScreen, atualize os dados
+                  _refreshData();
+                });
               },
             ),
             ListTile(
               title: Text('Sair'),
               onTap: () {
-                Navigator.pop(context); // Fecha o menu lateral
+                Navigator.pop(context);
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          LoginFormScreen()), // Navega para a tela de Login
+                  MaterialPageRoute(builder: (context) => LoginFormScreen()),
                 );
               },
             ),
           ],
         ),
       ),
-      body: FutureBuilder<List<Usuario>>(
-        future: _usuarios,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Erro: ${snapshot.error}'));
-          } else if (snapshot.hasData) {
-            final usuarios = snapshot.data!;
-            return usuarios.isNotEmpty
-                ? ListView.builder(
-                    itemCount: usuarios.length,
-                    itemBuilder: (context, index) {
-                      final usuario = usuarios[index];
-                      return ListTile(
-                        title: Text(usuario.name),
-                        subtitle: Text(usuario.email),
-                      );
-                    },
-                  )
-                : Center(child: Text('Nenhum usuário encontrado'));
-          } else {
-            return Center(child: Text('Nenhum usuário encontrado'));
-          }
-        },
+      body: RefreshIndicator(
+        onRefresh: _refreshData,
+        child: FutureBuilder<Map<String, dynamic>>(
+          future: _dashboardData,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Erro: ${snapshot.error}'));
+            } else if (snapshot.hasData) {
+              final data = snapshot.data!;
+              final statusCounts = data['statusCounts'] as Map<String, int>;
+
+              return Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Resumo do Dia',
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 16),
+                    Card(
+                      elevation: 5,
+                      child: ListTile(
+                        title: Text('Total de usuários'),
+                        trailing: Text(
+                          '${data['totalUsers']}',
+                          style: TextStyle(fontSize: 20),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      'Total de atividades',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 8),
+                    Card(
+                      elevation: 5,
+                      child: ListTile(
+                        title: Text(
+                          'Pendentes',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        trailing: Text(
+                          '${statusCounts['TO_DO']}',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                    Card(
+                      elevation: 5,
+                      child: ListTile(
+                        title: Text(
+                          'Em andamento',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        trailing: Text(
+                          '${statusCounts['IN_PROGRESS']}',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                    Card(
+                      elevation: 5,
+                      child: ListTile(
+                        title: Text(
+                          'Concluídas',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        trailing: Text(
+                          '${statusCounts['DONE']}',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      'Atividades recentes',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 8),
+                    ...data['recentActivities'].map<Widget>(
+                      (activity) => Card(
+                        elevation: 5,
+                        child: ListTile(
+                          title: Text(activity),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            } else {
+              return Center(child: Text('Nenhum dado disponível'));
+            }
+          },
+        ),
       ),
     );
   }

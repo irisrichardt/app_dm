@@ -17,7 +17,7 @@ class Task {
     return Task(
       id: json['id'],
       title: json['title'],
-      description: json['description'] ?? '', // Lidar com valores opcionais
+      description: json['description'] ?? '',
       status: json['status'],
       expirationDate: DateTime.parse(json['expirationDate']),
     );

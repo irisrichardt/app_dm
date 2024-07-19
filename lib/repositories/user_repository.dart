@@ -9,4 +9,8 @@ class UserRepository {
   Future<Usuario> createUser(Map<String, dynamic> data) async {
     return await userService.createUser(data);
   }
+
+    Future<List<Usuario>> getUsers() {
+    return userService.fetchUsers();
+  }
 }

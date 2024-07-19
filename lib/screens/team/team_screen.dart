@@ -1,74 +1,71 @@
 import 'package:flutter/material.dart';
-import 'task_create_screen.dart';
-import '../../services/task_service.dart';
-import '../../models/task.dart';
-import 'task_details_screen.dart';
+import '../../services/team_service.dart';
+import '../../models/team.dart';
 import 'package:app_dm/utils/constants.dart';
-import 'package:app_dm/repositories/task_repository.dart';
-import 'package:app_dm/screens/task/edit_task_screen.dart';
+import 'package:app_dm/repositories/team_repository.dart';
+import 'team_details_screen.dart';
+import 'edit_team_screen.dart';
+import 'create_team_screen.dart'; // Importe a tela de criação de equipe
 
-class AtividadesScreen extends StatefulWidget {
-  final String categoryName;
-
-  const AtividadesScreen({required this.categoryName});
-
+class TeamsScreen extends StatefulWidget {
   @override
-  _AtividadesScreenState createState() => _AtividadesScreenState();
+  _TeamsScreenState createState() => _TeamsScreenState();
 }
 
-class _AtividadesScreenState extends State<AtividadesScreen> {
-  late TaskRepository _taskRepository;
-  List<Task> _tasks = [];
+class _TeamsScreenState extends State<TeamsScreen> {
+  late TeamRepository _teamRepository;
+  List<Team> _teams = [];
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _taskRepository = TaskRepository(taskService: TaskService());
-    _loadTasks();
+    _teamRepository = TeamRepository(teamService: TeamService());
+    _loadTeams();
   }
 
-  Future<void> _loadTasks() async {
+  Future<void> _loadTeams() async {
     setState(() {
-      _isLoading = true; // Começa a exibir o indicador de carregamento
+      _isLoading = true;
     });
     try {
-      final tasks = await _taskRepository.fetchTasks(); // Recupera as tarefas
+      final teams = await _teamRepository.fetchTeams();
+      print('Equipes carregadas: $teams'); // Adicione esta linha para depuração
       setState(() {
-        _tasks = tasks; // Atualiza a lista de tarefas
-        _isLoading = false; // Oculta o indicador de carregamento
+        _teams = teams;
+        _isLoading = false;
       });
     } catch (e) {
       setState(() {
-        _isLoading = false; // Oculta o indicador de carregamento
+        _isLoading = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao carregar atividades: $e')),
+        SnackBar(content: Text('Erro ao carregar equipes: $e')),
       );
     }
   }
 
-  void _editTask(Task task) async {
+  void _editTeam(Team team) async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => EditTaskScreen(task: task),
+        builder: (context) => EditTeamScreen(team: team),
       ),
     );
     if (result == true) {
-      _loadTasks(); // Atualiza a lista de tarefas após a edição
+      _loadTeams(); // Atualiza a lista de equipes após a edição
     }
   }
 
-  Future<void> _deleteTask(Task task) async {
+  Future<void> _deleteTeam(Team team) async {
     try {
-      await _taskRepository.deleteTask(task.id); // Use o repositório
+      await _teamRepository.deleteTeam(team.id);
       setState(() {
-        _tasks.remove(task); // Remove a tarefa localmente
+        _teams.remove(team);
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao excluir tarefa: $e')),
+        SnackBar(content: Text('Erro ao excluir equipe: $e')),
       );
     }
   }
@@ -78,7 +75,7 @@ class _AtividadesScreenState extends State<AtividadesScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Lista de atividades",
+          "Lista de equipes",
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: customBlue,
@@ -86,23 +83,28 @@ class _AtividadesScreenState extends State<AtividadesScreen> {
       ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
-          : _tasks.isEmpty
-              ? Center(child: Text('Nenhuma atividade encontrada'))
+          : _teams.isEmpty
+              ? Center(child: Text('Nenhuma equipe encontrada'))
               : Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: ListView.separated(
-                    itemCount: _tasks.length,
+                    itemCount: _teams.length,
                     separatorBuilder: (context, index) => SizedBox(height: 8.0),
                     itemBuilder: (context, index) {
+                      final team = _teams[index];
                       return GestureDetector(
                         onTap: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) =>
-                                  TaskDetailsScreen(task: _tasks[index]),
+                                  TeamDetailsScreen(team: team),
                             ),
-                          );
+                          ).then((result) {
+                            if (result == true) {
+                              _loadTeams();
+                            }
+                          });
                         },
                         child: Card(
                           elevation: 5,
@@ -119,14 +121,20 @@ class _AtividadesScreenState extends State<AtividadesScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        _tasks[index].title,
+                                        team.name,
                                         style: TextStyle(
                                           fontSize: 18.0,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
                                       SizedBox(height: 8.0),
-                                      Text(_tasks[index].description),
+                                      Text(
+                                        '${team.members.length} membros',
+                                        style: TextStyle(
+                                          fontSize: 14.0,
+                                          color: Colors.grey[600],
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -136,13 +144,13 @@ class _AtividadesScreenState extends State<AtividadesScreen> {
                                     IconButton(
                                       icon: Icon(Icons.edit),
                                       onPressed: () {
-                                        _editTask(_tasks[index]);
+                                        _editTeam(_teams[index]);
                                       },
                                     ),
                                     IconButton(
                                       icon: Icon(Icons.delete),
                                       onPressed: () {
-                                        _deleteTask(_tasks[index]);
+                                        _deleteTeam(_teams[index]);
                                       },
                                     ),
                                   ],
@@ -159,10 +167,10 @@ class _AtividadesScreenState extends State<AtividadesScreen> {
         onPressed: () async {
           final result = await Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => CriarAtividadeScreen()),
+            MaterialPageRoute(builder: (context) => CreateTeamScreen()),
           );
           if (result == true) {
-            _loadTasks(); // Atualiza a lista de tarefas
+            _loadTeams(); // Atualiza a lista de equipes após a criação
           }
         },
         backgroundColor: customBlue,
