@@ -1,7 +1,7 @@
-import 'package:app_dm/models/task.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:app_dm/utils/constants.dart';
 
 class CriarAtividadeScreen extends StatefulWidget {
   @override
@@ -39,7 +39,7 @@ class _CriarAtividadeScreenState extends State<CriarAtividadeScreen> {
           'Criar nova atividade',
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: customBlue,
         centerTitle: true,
         iconTheme: IconThemeData(color: Colors.white),
       ),
@@ -206,22 +206,22 @@ class _CriarAtividadeScreenState extends State<CriarAtividadeScreen> {
                 ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      Atividade novaAtividade = Atividade(
-                        titulo: _tituloController.text,
-                        descricao: _descricaoController.text,
-                        status: _status!,
-                        prioridade: _prioridade!,
-                        storyPoints: _storyPoints!,
-                        equipeResponsavel: _equipeResponsavel!,
-                        anexos: _anexos,
-                      );
-                      // Handle save activity logic here
-                      print('Atividade criada: ${novaAtividade.titulo}');
-                      Navigator.pop(context); // Voltar para a tela anterior
+                      // Atividade novaAtividade = Atividade(
+                      //   titulo: _tituloController.text,
+                      //   descricao: _descricaoController.text,
+                      //   status: _status!,
+                      //   prioridade: _prioridade!,
+                      //   storyPoints: _storyPoints!,
+                      //   equipeResponsavel: _equipeResponsavel!,
+                      //   anexos: _anexos,
+                      // );
+                      // // Handle save activity logic here
+                      // print('Atividade criada: ${novaAtividade.titulo}');
+                      // Navigator.pop(context); // Voltar para a tela anterior
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepPurple, // Cor de fundo roxa
+                    backgroundColor: customBlue, // Cor de fundo roxa
                     foregroundColor: Colors.white, // Cor do texto branca
                   ),
                   child: Text('Salvar Atividade'),

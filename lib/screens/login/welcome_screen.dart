@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'login/login_screen.dart';
-import 'login/register_screen.dart';
+import 'login_screen.dart';
+import 'register_screen.dart';
 import 'package:app_dm/models/user.dart';
 import 'package:app_dm/utils/constants.dart';
 

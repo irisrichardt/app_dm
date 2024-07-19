@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:app_dm/services/auth_service.dart';
-import 'package:app_dm/screens/HomeScreen.dart';
+import 'package:app_dm/screens/home/home_screen.dart';
 import 'package:app_dm/utils/constants.dart';
 
 class LoginFormScreen extends StatefulWidget {
@@ -12,7 +12,7 @@ class _LoginFormState extends State<LoginFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
-  final ApiService _apiService = ApiService();
+  final AuthService _authService = AuthService();
 
   @override
   void dispose() {
@@ -27,13 +27,13 @@ class _LoginFormState extends State<LoginFormScreen> {
       String password = _passwordController.text;
 
       try {
-        final response = await _apiService.login(username, password);
+        final response = await _authService.login(username, password);
         print('Login successful: $response');
 
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => HomeScreen(token: response['token']),
+            builder: (context) => HomeScreen(),
           ),
         );
       } catch (e) {

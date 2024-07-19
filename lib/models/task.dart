@@ -1,21 +1,27 @@
-import 'dart:io';
+// lib/models/task.dart
 
-class Atividade {
-  final String titulo;
-  final String descricao;
+class Task {
+  final String id;
+  final String title;
+  final String description;
   final String status;
-  final String prioridade;
-  final int storyPoints;
-  final String equipeResponsavel;
-  final List<File>? anexos;
+  final String expirationDate;
 
-  Atividade({
-    required this.titulo,
-    required this.descricao,
+  Task({
+    required this.id,
+    required this.title,
+    required this.description,
     required this.status,
-    required this.prioridade,
-    required this.storyPoints,
-    required this.equipeResponsavel,
-    this.anexos,
+    required this.expirationDate,
   });
+
+  factory Task.fromJson(Map<String, dynamic> json) {
+    return Task(
+      id: json['id'],
+      title: json['title'],
+      description: json['description'],
+      status: json['status'],
+      expirationDate: json['expirationDate'],
+    );
+  }
 }

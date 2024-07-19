@@ -1,4 +1,4 @@
-import 'package:app_dm/screens/BoasVindas.dart';
+import 'package:app_dm/screens/login/welcome_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {

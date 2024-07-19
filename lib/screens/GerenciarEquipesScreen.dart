@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:app_dm/utils/constants.dart';
 
 class GerenciarEquipesScreen extends StatefulWidget {
   @override
@@ -23,7 +24,7 @@ class _GerenciarEquipesScreenState extends State<GerenciarEquipesScreen> {
           'Gerenciar Equipes',
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: customBlue,
         iconTheme: IconThemeData(color: Colors.white),
       ),
       body: Padding(
@@ -77,7 +78,7 @@ class _GerenciarEquipesScreenState extends State<GerenciarEquipesScreen> {
                 });
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple,
+                backgroundColor: customBlue,
                 foregroundColor: Colors.white,
               ),
               child: Text('Adicionar Membro'),
