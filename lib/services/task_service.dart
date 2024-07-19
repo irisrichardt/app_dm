@@ -32,4 +32,63 @@ class TaskService {
       throw Exception('Failed to load tasks: $e');
     }
   }
+
+  Future<void> createTask(Task task) async {
+    try {
+      final token = await _authService.getToken();
+      if (token == null) {
+        throw Exception('Token não encontrado');
+      }
+
+      final taskData = {
+        'title': task.title,
+        'description': task.description,
+        'status': task.status,
+        'expirationDate': task.expirationDate.toIso8601String(),
+      };
+
+      print('Creating task at $apiBaseUrl/task');
+      print(
+          'Headers: {Authorization: Bearer $token, Content-Type: application/json; charset=UTF-8}');
+      print('Body: ${jsonEncode(taskData)}');
+
+      final response = await http.post(
+        Uri.parse('$apiBaseUrl/task'),
+        headers: <String, String>{
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(taskData),
+      );
+
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode != 201) {
+        throw Exception('Failed to create task');
+      }
+    } catch (e) {
+      print('Erro ao criar a tarefa: $e');
+    }
+  }
+
+  Future<void> deleteTask(String taskId) async {
+    final token = await _authService.getToken();
+
+    if (token == null) {
+      throw Exception('Token não encontrado');
+    }
+
+    final response = await http.delete(
+      Uri.parse('$apiBaseUrl/task/$taskId'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Falha ao deletar a tarefa: ${response.statusCode}');
+    }
+  }
 }

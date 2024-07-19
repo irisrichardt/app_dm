@@ -1,16 +1,14 @@
-// lib/models/task.dart
-
 class Task {
   final String id;
   final String title;
   final String description;
   final String status;
-  final String expirationDate;
+  final DateTime expirationDate;
 
   Task({
     required this.id,
     required this.title,
-    required this.description,
+    this.description = '',
     required this.status,
     required this.expirationDate,
   });
@@ -19,9 +17,19 @@ class Task {
     return Task(
       id: json['id'],
       title: json['title'],
-      description: json['description'],
+      description: json['description'] ?? '', // Lidar com valores opcionais
       status: json['status'],
-      expirationDate: json['expirationDate'],
+      expirationDate: DateTime.parse(json['expirationDate']),
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'description': description,
+      'status': status,
+      'expirationDate': expirationDate.toIso8601String(),
+    };
   }
 }
